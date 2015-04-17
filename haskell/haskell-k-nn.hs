@@ -17,7 +17,7 @@ runClassifier :: Observations -> Observations -> IO ()
 runClassifier validation training = do
     let n = V.length validation
     results <- V.forM validation $ \v -> do
-        let c = checkCorrect training v
+        let c = isCorrect training v
         print (label v, c)
         return c
     print (fromIntegral (V.sum results) / fromIntegral n)
@@ -39,17 +39,18 @@ instance CSV.FromRecord Observation where
         pixels <- V.mapM CSV.parseField (V.tail v)
         return $ Observation (V.head v) (VU.convert pixels)
 
-dist :: Features -> Features -> Int
-dist !x !y = VU.sum $ VU.map (^2) $ VU.zipWith (-) x y
+dist :: Observation -> Observation -> Int
+dist !o1 !o2 = VU.sum $ VU.map (^2) $ VU.zipWith (-) x y where
+    (x, y) = (features o1, features o2)
 
-closerTo :: Features -> Observation -> Observation -> Ordering
-closerTo !target !o1 !o2 = compare (dist target (features o1)) (dist target (features o2))
+closestTo :: Observation -> Observation -> Observation -> Ordering
+closestTo !target !o1 !o2 = compare (dist target o1) (dist target o2)
 
-classify :: Observations -> Features -> Label
-classify !os !fs = label where
-    (Observation label _) = V.minimumBy (closerTo fs) os
+classify :: Observations -> Observation -> Label
+classify !os !o = label where
+    (Observation label _) = V.minimumBy (closestTo o) os
 
-checkCorrect :: Observations -> Observation -> Int
-checkCorrect !training (Observation label features)
-    | label == classify training features = 1
+isCorrect :: Observations -> Observation -> Int
+isCorrect !training example
+    | label example == classify training example = 1
     | otherwise = 0
