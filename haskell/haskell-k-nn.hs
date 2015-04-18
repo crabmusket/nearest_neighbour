@@ -1,11 +1,11 @@
 import qualified Data.Csv as CSV
-import qualified Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
 
 main = do
-    validationSample <- fmap parseRecords (BS.readFile "validationsample.csv")
-    trainingSample   <- fmap parseRecords (BS.readFile "trainingsample.csv")
+    validationSample <- fmap parseRecords (BL.readFile "validationsample.csv")
+    trainingSample   <- fmap parseRecords (BL.readFile "trainingsample.csv")
 
     case (validationSample, trainingSample) of
         (Right validation, Right training) -> runClassifier validation training
@@ -20,7 +20,7 @@ runClassifier validation training = do
         return c
     print (fromIntegral (V.sum results) / fromIntegral n)
 
-parseRecords :: BS.ByteString -> Either String (V.Vector Observation)
+parseRecords :: BL.ByteString -> Either String (V.Vector Observation)
 parseRecords = CSV.decode CSV.HasHeader
 
 data Observation = Observation {
