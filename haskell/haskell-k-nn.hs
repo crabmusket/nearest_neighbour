@@ -14,10 +14,12 @@ main = do
         _ -> putStrLn "Parsing error"
 
 runClassifier :: Observations -> Observations -> IO ()
-runClassifier validation training = do
+runClassifier validation training =
     let n = V.length validation
-        correct = V.map (isCorrect training) validation
-    print (fromIntegral (V.sum correct) / fromIntegral n)
+        results = V.map (classify training) validation
+        score l o = if l == label o then 1 else 0
+        correct = V.zipWith score results validation
+    in print (fromIntegral (V.sum correct) / fromIntegral n)
 
 parseRecords :: BL.ByteString -> Either String (V.Vector Observation)
 parseRecords = CSV.decode CSV.HasHeader
@@ -44,10 +46,5 @@ closestTo :: Observation -> Observation -> Observation -> Ordering
 closestTo target o1 o2 = compare (dist target o1) (dist target o2)
 
 classify :: Observations -> Observation -> Label
-classify os o = label where
-    (Observation label _) = V.minimumBy (closestTo o) os
-
-isCorrect :: Observations -> Observation -> Int
-isCorrect training example
-    | label example == classify training example = 1
-    | otherwise = 0
+classify training obs = label closest where
+    closest = V.minimumBy (closestTo obs) training
