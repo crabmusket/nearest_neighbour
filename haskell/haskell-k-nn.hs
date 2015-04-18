@@ -23,7 +23,7 @@ runClassifier validation training =
         correct = V.zipWith score results validation
     in print (fromIntegral (V.sum correct) / fromIntegral n)
 
-parseRecords :: BL.ByteString -> Either String (V.Vector Observation)
+parseRecords :: BL.ByteString -> Either String Observations
 parseRecords = CSV.decode CSV.HasHeader
 
 data Observation = Observation {
