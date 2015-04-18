@@ -21,7 +21,7 @@ runClassifier validation training =
         results = inParallel $ V.map (classify training) validation
         score l o = if l == label o then 1 else 0
         correct = V.zipWith score results validation
-    in print (fromIntegral (V.sum correct) / fromIntegral n)
+     in print (fromIntegral (V.sum correct) / fromIntegral n)
 
 parseRecords :: BL.ByteString -> Either String Observations
 parseRecords = CSV.decode CSV.HasHeader
