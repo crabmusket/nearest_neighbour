@@ -14,11 +14,8 @@ main = do
 runClassifier :: Observations -> Observations -> IO ()
 runClassifier validation training = do
     let n = V.length validation
-    results <- V.forM validation $ \v -> do
-        let c = isCorrect training v
-        print (label v, c)
-        return c
-    print (fromIntegral (V.sum results) / fromIntegral n)
+        correct = V.map (isCorrect training) validation
+    print (fromIntegral (V.sum correct) / fromIntegral n)
 
 parseRecords :: BL.ByteString -> Either String (V.Vector Observation)
 parseRecords = CSV.decode CSV.HasHeader
