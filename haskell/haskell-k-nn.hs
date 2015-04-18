@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 import qualified Data.Csv as CSV
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Vector as V
@@ -21,8 +23,8 @@ parseRecords :: BL.ByteString -> Either String (V.Vector Observation)
 parseRecords = CSV.decode CSV.HasHeader
 
 data Observation = Observation {
-    label    :: Label,
-    features :: Features
+    label    :: !Label,
+    features :: !Features
  } deriving (Show, Eq)
 
 type Label = CSV.Field
